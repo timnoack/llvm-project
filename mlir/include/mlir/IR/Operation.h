@@ -925,33 +925,33 @@ public:
   }
   /// Returns the properties storage.
   OpaqueProperties getPropertiesStorage() {
-    if (propertiesStorageSize) {
-      void *properties =
-          reinterpret_cast<void *>(getTrailingObjects<detail::OpProperties>());
-      if (isBreakingControlFlowFlag)
-        properties =
-            reinterpret_cast<void *>(reinterpret_cast<char *>(properties) + 8);
-      return {properties};
-    }
+    if (propertiesStorageSize)
+      return getPropertiesStorageUnsafe();
     return {nullptr};
   }
   OpaqueProperties getPropertiesStorage() const {
-    if (propertiesStorageSize) {
-      void *properties =
-          reinterpret_cast<void *>(const_cast<detail::OpProperties *>(
-              getTrailingObjects<detail::OpProperties>()));
-      if (isBreakingControlFlowFlag)
-        properties =
-            reinterpret_cast<void *>(reinterpret_cast<char *>(properties) + 8);
-      return {properties};
-    }
+    if (propertiesStorageSize)
+      return getPropertiesStorageUnsafe();
     return {nullptr};
   }
   /// Returns the properties storage without checking whether properties are
   /// present.
   OpaqueProperties getPropertiesStorageUnsafe() {
-    return {
-        reinterpret_cast<void *>(getTrailingObjects<detail::OpProperties>())};
+    void *properties =
+        reinterpret_cast<void *>(getTrailingObjects<detail::OpProperties>());
+    if (isBreakingControlFlowFlag)
+      properties =
+          reinterpret_cast<void *>(reinterpret_cast<char *>(properties) + 8);
+    return {properties};
+  }
+  OpaqueProperties getPropertiesStorageUnsafe() const {
+    void *properties =
+        reinterpret_cast<void *>(const_cast<detail::OpProperties *>(
+            getTrailingObjects<detail::OpProperties>()));
+    if (isBreakingControlFlowFlag)
+      properties =
+          reinterpret_cast<void *>(reinterpret_cast<char *>(properties) + 8);
+    return {properties};
   }
 
   /// Return the properties converted to an attribute.
